@@ -24,7 +24,8 @@ restore() {
   dbus set mikuui_active=0 2>/dev/null || true
 }
 apply() {
-  [ "$(nvram get productid)" = RT-AX86U_PRO ] || { echo 'Unsupported router model'; return 1; }
+  . "$ROOT/scripts/mikuui-platform.sh"
+  miku_web_check || return 1
   [ -r "$ROOT/assets/theme.css" ] || return 1
   for name in $TARGETS; do
     if mounted "$name" && ! owned "$name"; then echo "Web resource is managed by another plugin: $name"; return 1; fi
@@ -33,8 +34,8 @@ apply() {
   mkdir -p "$RUN/overlay" "$PUBLIC" || return 1
   chmod 755 "$RUN" "$RUN/overlay" "$PUBLIC"
   cp "$ROOT/assets/"*.png "$ROOT/assets/theme.css" "$ROOT/assets/loader.js" "$PUBLIC/" || return 1
-  cp "$ROOT/assets/theme.css" "$PUBLIC/theme-2.0.0.css" || return 1
-  cp "$ROOT/assets/login_bg_title.png" "$PUBLIC/login-bg-2.0.0.png" || return 1
+  cp "$ROOT/assets/theme.css" "$PUBLIC/theme-2.1.0.css" || return 1
+  cp "$ROOT/assets/login_bg_title.png" "$PUBLIC/login-bg-2.1.0.png" || return 1
   chmod 644 "$PUBLIC/"*
   : > "$RUN/baseline.sha256"
   for name in $TARGETS; do
@@ -60,7 +61,7 @@ apply() {
       ' "/www/$name" > "$RUN/overlay/$name" || return 1
       grep -q MIKUUI_STYLELOADER_V1 "$RUN/overlay/$name" || return 1
     else
-      awk 'BEGIN {done=0} /<\/head>/ && !done {print "<!-- MIKUUI_STYLELOADER_V1 --><script src=\"/user/mikuui/loader.js?v=2.0.0\"></script>";done=1} {print}' "/www/$name" > "$RUN/overlay/$name" || return 1
+      awk 'BEGIN {done=0} /<\/head>/ && !done {print "<!-- MIKUUI_STYLELOADER_V1 --><script src=\"/user/mikuui/loader.js?v=2.1.0\"></script>";done=1} {print}' "/www/$name" > "$RUN/overlay/$name" || return 1
       grep -q MIKUUI_STYLELOADER_V1 "$RUN/overlay/$name" || continue
     fi
     chmod 644 "$RUN/overlay/$name"
@@ -84,7 +85,7 @@ apply)
     if [ ! -s "$RUN/guard.pid" ] || ! kill -0 "$(cat "$RUN/guard.pid")" 2>/dev/null; then
       (trap '' 1; exec /bin/sh "$RUN/guard.sh") >/dev/null 2>&1 </dev/null & echo $! > "$RUN/guard.pid"
     fi
-  else dbus set mikuui_active=0; exit 1; fi
+  else restore; dbus set mikuui_active=0; exit 1; fi
   ;;
 stop) restore ;;
 status) if owned state.js; then echo active; else echo default; fi ;;

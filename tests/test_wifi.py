@@ -24,6 +24,8 @@ class WifiTests(unittest.TestCase):
  def test_key_prefix_boundary(self):
   r=self.patch('10:maxp2ga0=100\n0:maxp2ga0=110\n0:maxp2g_extra=110\n',p24='0:')
   self.assertIn('10:maxp2ga0=100\n',r.stdout);self.assertEqual(r.returncode,0)
+ def test_duplicate_power_keys_rejected(self):
+  self.assertNotEqual(self.patch('0:maxp2ga0=110\n0:maxp2ga0=120\n').returncode,0)
  def profile_roundtrip(self,data):
   with tempfile.TemporaryDirectory() as d:
    source=pathlib.Path(d)/'profile';text=pathlib.Path(d)/'text';out=pathlib.Path(d)/'out'

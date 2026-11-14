@@ -1,5 +1,5 @@
 #!/bin/sh
-# Local-only calibration controller for RT-AX86U Pro. No license or payment code.
+# Local-only calibration controller, gated by discovered HND capabilities.
 set -eu
 umask 077
 export PATH=/koolshare/bin:/bin:/sbin:/usr/bin:/usr/sbin
@@ -22,20 +22,28 @@ validate() {
 }
 # Pure validation entry is safe to run without a router, for packaging tests.
 if [ "${1:-}" = validate ]; then shift; validate "$@"; exit; fi
-model_check() { [ "$(nvram get productid)" = RT-AX86U_PRO ] || fail '当前版本只支持 RT-AX86U Pro'; }
+. "$ROOT/scripts/mikuui-platform.sh"
+model_check() { miku_armv8 || fail '当前系统未识别为 ARMv8'; }
 identity() { { nvram get productid; cat /sys/class/net/br0/address; } | sha256sum | awk '{print $1}'; }
 number() { printf '%s\n' "$1" | grep -Eq '^-?[0-9]+(\.[0-9]+)?$'; }
 prefix_for() {
  local iface="$1" mac
- case "$iface" in eth[0-9]|eth[0-9][0-9]) ;; *) return 1;; esac
+ miku_iface_valid "$iface" || return 1
  [ -r "/sys/class/net/$iface/address" ] || return 1
  mac="$(cat "/sys/class/net/$iface/address")"
- awk -F= -v mac="$mac" 'tolower($2)==tolower(mac) && ($1~/^[0-5]:macaddr$/ || $1~/^sb\/[0-5]\/macaddr$/) {sub(/macaddr$/,"",$1);print $1;exit}' "$KERNEL"
+ awk -F= -v mac="$mac" 'tolower($2)==tolower(mac) && ($1~/^[0-7]:macaddr$/ || $1~/^sb\/[0-7]\/macaddr$/) {sub(/macaddr$/,"",$1);p=$1;n++} END{if(n!=1)exit 1;print p}' "$KERNEL"
 }
 load_radios() {
  [ -r "$KERNEL" ] || fail '无法读取当前无线校准信息'
- IF24="$(nvram get wl0_ifname)"; IF5="$(nvram get wl1_ifname)"
- [ "$(nvram get wl0_nband)" = 2 ] && [ "$(nvram get wl1_nband)" = 1 ] || fail '无线频段顺序不符合当前适配，已停止'
+ local mapping iface state
+ type wl >/dev/null 2>&1 || fail '缺少 Broadcom wl 驱动接口'
+ mapping="$(miku_radios | miku_dual_mapping)" || fail '当前功率写入适配一组 2.4 GHz + 一组 5 GHz；多射频或其他频段保留只读监控'
+ set -- $mapping
+ IF24="$2";IF5="$4"
+ for iface in "$IF24" "$IF5";do
+  state="$(wl -i "$iface" isup 2>/dev/null || true)"
+  case "$state" in 0|1) ;; *) fail '无线驱动接口不可识别，功率操作已停止';;esac
+ done
  P24="$(prefix_for "$IF24")"; P5="$(prefix_for "$IF5")"
  case "$P24:$P5" in *macaddr*) fail '无法识别无线校准前缀';; esac
  [ -n "$P24" ] && [ -n "$P5" ] && [ "$P24" != "$P5" ] || fail '无法唯一对应两个无线频段'
@@ -60,11 +68,21 @@ read_band() {
  dbus set "mikuui_wifi_iface$suffix=$iface"
 }
 status() {
- model_check;load_radios
- read_band 24 "$IF24" "$P24" 2g;read_band 5 "$IF5" "$P5" 5g
+ local reason b
+ dbus set mikuui_wifi_ready=0
+ dbus set "mikuui_wifi_model=$(nvram get productid)"
+ dbus set "mikuui_wifi_arch=$(uname -m)"
+ for b in 24 5;do
+  dbus set "mikuui_wifi_temp$b=unknown";dbus set "mikuui_wifi_power$b=unknown";dbus set "mikuui_wifi_max$b=unknown"
+ done
+ if reason="$("$0" probe 2>&1)";then
+  model_check;load_radios
+  read_band 24 "$IF24" "$P24" 2g;read_band 5 "$IF5" "$P5" 5g
+  dbus set mikuui_wifi_ready=1
+  dbus set mikuui_wifi_compat='功率接口检查通过。其他型号仍需实机验证；实际功率受地区和驱动限制。'
+ else dbus set "mikuui_wifi_compat=功率只读：$reason";fi
  dbus set "mikuui_wifi_region=$(nvram get location_code)"
  if [ -s "$BACKUP/nvram.nvm" ] && [ -s "$BACKUP/nvram.sha256" ]; then dbus set mikuui_wifi_backup=1;else dbus set mikuui_wifi_backup=0;fi
- dbus set mikuui_wifi_ready=1
 }
 find_profile() {
  PROFILE=''
@@ -92,6 +110,18 @@ mount_profile() {
  [ -n "$PROFILE" ] || fail '未找到可读取的校准文件；未写入配置'
  [ "$(wc -c < "$PROFILE")" -gt 100 ] || fail '校准文件大小异常'
  PROFILE_FORMAT="$("$ROOT/scripts/mikuui-wifi-format.sh" decode "$PROFILE" "$RUN/profile.txt")" || fail '校准格式或逐字节还原校验未通过，未写入配置'
+ check_profile
+}
+
+check_profile() {
+ [ -x "$HELPER" ] || fail '缺少固件 HND 校准挂载接口'
+ [ -r /sys/class/net/br0/address ] || fail '无法识别本机备份身份'
+ # The file being written must describe the same radios as the running driver.
+ awk -F= -v p24="$P24" -v p5="$P5" -v m24="$(cat "/sys/class/net/$IF24/address")" -v m5="$(cat "/sys/class/net/$IF5/address")" '
+ $1==p24"macaddr" {n24++;if(tolower($2)!=tolower(m24))bad=1}
+ $1==p5"macaddr" {n5++;if(tolower($2)!=tolower(m5))bad=1}
+ END{exit (bad||n24!=1||n5!=1)}' "$RUN/profile.txt" || fail '校准文件与当前无线接口身份不匹配'
+ awk -v check_only=1 -v on24=1 -v on5=1 -v prefix24="$P24" -v prefix5="$P5" -f "$ROOT/scripts/mikuui-wifi-patch.awk" "$RUN/profile.txt" >/dev/null || fail '功率字段格式不受支持'
 }
 
 cleanup() {
@@ -157,7 +187,10 @@ restore)
  [ -s "$BACKUP/nvram.nvm" ] || fail '尚无备份'
  [ "$(cat "$BACKUP/device.sha256")" = "$(identity)" ] || fail '备份不属于本机'
  (cd "$BACKUP" && sha256sum -c nvram.sha256) || fail '备份校验失败'
- mount_profile write;cp "$BACKUP/nvram.nvm" "$RUN/candidate.nvm";commit_profile
+ mount_profile write
+ "$ROOT/scripts/mikuui-wifi-format.sh" decode "$BACKUP/nvram.nvm" "$RUN/profile.txt" >/dev/null || fail '备份校准格式不受支持'
+ check_profile
+ cp "$BACKUP/nvram.nvm" "$RUN/candidate.nvm";commit_profile
  ;;
 *) fail '用法：status / preview / probe / apply / restore';;
 esac

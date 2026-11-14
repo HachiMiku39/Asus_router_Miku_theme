@@ -7,7 +7,7 @@ body#mikuui-login-page.wrapper {
   padding:96px 24px 36px;
   display:grid;
   place-items:center;
-  background:#080b0f url('/user/mikuui/login-bg-2.0.0.png') center center / contain no-repeat fixed !important;
+  background:#080b0f url('/user/mikuui/login-bg-2.1.0.png') center center / contain no-repeat fixed !important;
   color:#edf7f7;
 }
 #mikuui-login-page > iframe { position:absolute; width:0; height:0; border:0; }

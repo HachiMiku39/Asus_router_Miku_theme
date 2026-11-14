@@ -1,4 +1,4 @@
-/* 初音未来主题 2.0.0 — keep Merlin geometry and controls. */
+/* 初音未来主题 2.1.0 — keep Merlin geometry and controls. */
 html.mikuui { --miku:#39C5BB; --pink:#ED559B; --ink:#0c191e; }
 .mikuui body {
   background: #0b1319 url('/user/mikuui/login_bg_noTitle.png') center top / cover fixed no-repeat !important;

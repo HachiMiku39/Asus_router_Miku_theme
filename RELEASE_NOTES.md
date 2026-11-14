@@ -1,3 +1,19 @@
+# v2.1.0
+
+## ARMv8 通用适配 / ARMv8 compatibility
+
+- 安装器和主题不再限制 RT-AX86U Pro，改为检查 ARMv8 与软件中心 / Merlin 网页接口。
+- 自动发现现有无线接口和频段，支持顺序调换、多个 5 GHz 与 6 GHz 射频的监控卡片和曲线。
+- 功率功能按 HND 双频校准能力检查：接口身份、唯一前缀、已知字段格式、逐字节还原，以及本机备份。三频/四频和未知接口仅提供可用的只读监控。
+- 页面显示设备型号、架构和功率只读原因。只有功率接口检查通过时才迁移旧 Wi-Fi Boost。
+- 18 项离线测试通过；浏览器模拟验证三频/6 GHz 显示、原有监控和只读按钮禁用。AX86U Pro 实机安装和只读检查通过，校准哈希保持不变。其他机型仍属理论兼容；未实际执行功率写入或测试重启。
+
+Installation and theming now target ARMv8 devices through capability checks instead of a model whitelist. Radio discovery handles reordered bands, multiple 5 GHz radios and 6 GHz. Calibration writes remain limited to the validated HND dual-band schema; incompatible devices retain theming and available read-only telemetry. Legacy migration only runs after the power-interface check succeeds.
+
+18 offline tests passed, plus browser fixtures for dynamic radios and read-only behavior. Installed and read-only checked on RT-AX86U Pro; its calibration hash remained unchanged. Other models have theoretical compatibility, not hardware certification. No actual power write or test reboot was performed. See [COMPATIBILITY.md](COMPATIBILITY.md).
+
+---
+
 # v2.0.0
 
 [简体中文](#简体中文) · [English](#english)

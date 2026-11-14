@@ -5,7 +5,7 @@
   if (!document.getElementById('mikuui-style')) {
     var link = document.createElement('link');
     link.id = 'mikuui-style'; link.rel = 'stylesheet';
-    link.href = '/user/mikuui/theme-2.0.0.css';
+    link.href = '/user/mikuui/theme-2.1.0.css';
     (document.head || document.getElementsByTagName('head')[0]).appendChild(link);
   }
 }());

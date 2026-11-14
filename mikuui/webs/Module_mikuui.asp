@@ -45,7 +45,7 @@ function init(){show_menu(menu_hook);loadStatus();}
 <table width="98%" border="0" align="left" cellpadding="0" cellspacing="0"><tr><td>
 <table width="760" border="0" cellpadding="5" cellspacing="0" class="FormTitle" id="FormTitle"><tr><td bgcolor="#4D595D" valign="top">
 <div style="padding:16px 12px">
-<div class="miku-page-heading"><div class="formfonttitle">初音未来主题 + Wi-Fi Boost <span style="font-size:12px;font-weight:normal;opacity:.65">2.0.0</span></div><a class="miku-back" href="/Module_Softcenter.asp">← 返回软件中心</a></div>
+<div class="miku-page-heading"><div class="formfonttitle">初音未来主题 + Wi-Fi Boost <span style="font-size:12px;font-weight:normal;opacity:.65">2.1.0</span></div><a class="miku-back" href="/Module_Softcenter.asp">← 返回软件中心</a></div>
 <div class="miku-card"><img src="/res/icon-mikuui.png" alt="初音未来原包主题素材"><div class="miku-eyebrow">HATSUNE MIKU · MERLIN</div><h2>让初音绿，点亮后台。</h2><p>原包角色素材，搭配初音绿与粉红点缀。保留熟悉的 Merlin 布局，所有设置照常使用。</p><span class="miku-chip">#39C5BB</span><span class="miku-chip pink">Pink accent</span></div>
 <div class="miku-status" role="status"><span id="themeDot" class="miku-dot"></span><span id="themeStatus">正在读取主题状态…</span></div>
 <div class="miku-actions"><button type="button" class="theme-action" onclick="setTheme(1)">应用初音未来主题</button><button type="button" class="theme-action secondary" onclick="setTheme(2)">恢复默认外观</button></div>

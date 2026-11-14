@@ -15,9 +15,10 @@ function replacevalue(v,q, a,n,i,r) {
  choose24=on24==1 && index(key,prefix24)==1 && substr(key,length(prefix24)+1)~/^maxp2g[a-zA-Z0-9_]*$/;
  choose5=on5==1 && index(key,prefix5)==1 && substr(key,length(prefix5)+1)~/^maxp5g[a-zA-Z0-9_]*$/;
  if(choose24 || choose5){
+  if(seen[key]++){bad=1;print "Duplicate calibration key: " key > "/dev/stderr";next}
   if(!validvalue(value)){bad=1;print "Unsupported calibration value: " key > "/dev/stderr";next}
   if(choose24)count24++;else count5++;
-  print key "=" replacevalue(value,choose24?q24:q5);
+  if(check_only) print;else print key "=" replacevalue(value,choose24?q24:q5);
  } else print;
 }
 END {
