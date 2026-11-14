@@ -1,0 +1,13 @@
+dist/
+__pycache__/
+*.pyc
+.DS_Store
+*.cookies
+*cookie*.txt
+*.key
+*.log
+.env
+backup/
+backups/
+mikuui-backups/
+.private/

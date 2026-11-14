@@ -1,0 +1,57 @@
+/* 初音未来主题 2.0.0 — keep Merlin geometry and controls. */
+html.mikuui { --miku:#39C5BB; --pink:#ED559B; --ink:#0c191e; }
+.mikuui body {
+  background: #0b1319 url('/user/mikuui/login_bg_noTitle.png') center top / cover fixed no-repeat !important;
+  color:#edf7f7;
+}
+.mikuui .content { background:rgba(12,25,30,.94) !important; box-shadow:0 0 0 1px #28605d, 0 18px 65px #0008; }
+/* Reserve the artwork's own space; the native toolbar must not crop or cover it. */
+.mikuui #TopBanner::before {
+  content:"";
+  display:block;
+  width:998px;
+  height:398.333px;
+  margin:0 auto;
+  background:#0b1319 url('/user/mikuui/GT-bg_header_18.png') center / contain no-repeat;
+  pointer-events:none;
+}
+.mikuui .banner1 {
+  background:linear-gradient(90deg,#0b2028,#12383d 54%,#12282e) !important;
+  box-shadow:inset 0 2px #39C5BB, inset 0 -1px #39c5bb66;
+}
+.mikuui .banner1 > img[src$='asustitle.png'] {
+  content:url('/user/mikuui/ROG-logo_18.png'); object-fit:contain; object-position:left center;
+  box-sizing:border-box; padding:3px 112px 3px 14px; width:218px; height:54px;
+}
+.mikuui #modelName_top { color:#f4ffff; text-shadow:0 1px 4px #000; }
+.mikuui .minup_bg { background:rgba(12,32,37,.93) !important; }
+.mikuui .menu, .mikuui .menu_blocked { background-color:#152b31 !important; border-color:#2c5358 !important; }
+.mikuui .menu:hover { background-color:#204047 !important; border-color:#39C5BB !important; }
+.mikuui .menu_clicked, .mikuui .menuClicked { background:linear-gradient(90deg,#235d59,#153a40) !important; border-color:#39C5BB !important; box-shadow:inset 3px 0 #ed559b; }
+.mikuui .tab { background:#19383d !important; border-color:#2f5558 !important; }
+.mikuui .tab:hover { background:#25504f !important; }
+.mikuui .tabClicked { background:#2e6b65 !important; border-color:#39C5BB !important; color:#fff !important; }
+.mikuui .FormTitle { background:rgba(16,36,42,.96) !important; border-color:#32645f !important; }
+.mikuui .FormTitle > tbody > tr > td[bgcolor], .mikuui #FormTitle > tbody > tr > td { background-color:transparent !important; }
+.mikuui .FormTable th, .mikuui .FormTable_table th { background:#183038 !important; border-color:#2b4d52 !important; }
+.mikuui .FormTable td, .mikuui .FormTable_table td { background:#224048 !important; border-color:#2b4d52 !important; }
+.mikuui .FormTable thead td, .mikuui .FormTable_table thead td { background:linear-gradient(90deg,#28635e,#204449) !important; color:#f6ffff !important; }
+.mikuui .FormTable td span { background-color:transparent !important; }
+.mikuui .FormTable .input_option, .mikuui .input_option, .mikuui .input_32_table,
+.mikuui .input_15_table, .mikuui .input_12_table, .mikuui .input_6_table, .mikuui .input_ss_table {
+  background-color:#102930 !important; color:#f0fafa !important; border-color:#42716f !important;
+}
+.mikuui input:focus-visible, .mikuui select:focus-visible, .mikuui button:focus-visible, .mikuui a:focus-visible { outline:2px solid #ed559b; outline-offset:2px; }
+.mikuui .button_gen, .mikuui input.button_gen, .mikuui .button_gen_long {
+  background:linear-gradient(#57d4c9,#39b8ad) !important; border-color:#70e0d6 !important;
+  color:#092529 !important; text-shadow:none !important; font-weight:bold;
+}
+.mikuui .button_gen:hover, .mikuui .button_gen_long:hover { background:linear-gradient(#79e4da,#52cbbf) !important; }
+.mikuui .button_gen:disabled, .mikuui input:disabled { opacity:.5; cursor:default; }
+.mikuui a { color:#79dfd6; }
+.mikuui .formfonttitle { color:#f3ffff; }
+.mikuui .splitLine { border-color:#32665f !important; background-color:#32665f !important; }
+.mikuui .apply_gen { background:transparent !important; }
+.mikuui input[type='checkbox'], .mikuui input[type='radio'] { accent-color:#39C5BB; }
+.mikuui .wrapper { background-image:url('/user/mikuui/login_bg_noTitle.png') !important; background-size:cover !important; background-position:center !important; background-color:#101012 !important; }
+/* Preserve validation/warning colors, disabled state, native layout and Merlin credits. */
